@@ -1,0 +1,90 @@
+# FSM:
+#   _: # enabled fsms
+#     Passive:
+#       id: 1
+#     FixStand:
+#       id: 2
+#     Velocity:
+#       id: 3
+#       type: RLBase
+#     SafetyProtect:      # ← 新增：保护状态
+#       id: 4
+#       type: SafetyProtect  # 可选：标记为自动触发状态
+  
+#   Passive:
+#     transitions: 
+#       FixStand: LT + A.on_pressed
+#     mode: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+#     kd: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+  
+#   FixStand:
+#     transitions: 
+#       Passive: LT + B.on_pressed
+#       Velocity: LT + X.on_pressed
+#     kp: [60, 80, 80, 60, 80, 80, 60, 80, 80, 60, 80, 80]
+#     kd: [5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4]
+#     ts: [0, 1, 2]
+#     qs: [
+#       [],
+#       [0.0, 1.36, -2.65, 0.0, 1.36, -2.65, 0.0, 1.36, -2.65, 0.0, 1.36, -2.65],
+#       [0., 0.8, -1.5, 0., 0.8, -1.5, 0., 0.8, -1.5, 0., 0.8, -1.5],
+#     ]
+  
+#   Velocity:
+#     transitions: 
+#       Passive: LT + B.on_pressed
+#     policy_dir: /home/yxc/unitree_rl_lab/2026-02-06_10-21-26
+#     safety_limits:
+#       # Go2 实际机械极限（留 0.1rad 安全余量）
+#       joint_pos_min: [-0.77, -0.42, -2.67, -0.77, -0.42, -2.67, 
+#                       -0.77, -0.42, -2.67, -0.77, -0.42, -2.67]
+#       joint_pos_max: [0.77, 2.87, -0.62, 0.77, 2.87, -0.62,
+#                       0.77, 2.87, -0.62, 0.77, 2.87, -0.62]
+#       torque_threshold: 30.0  # Go2 额定 23-35，留余量
+
+#   SafetyProtect:
+#     transitions:
+#       Passive: LT + B.on_pressed
+#       FixStand: LT + A.on_pressed
+#     mode: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+#     kd: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]  # 高阻尼保护
+#     recovery_delay: 1.0  # Go2 质量大，需更长时间稳定
+
+
+
+# ## ./go2_ctrl -n lo
+
+FSM:
+  _: # enabled fsms
+    Passive:
+      id: 1
+    FixStand:
+      id: 2
+    Velocity:
+      id: 3
+      type: RLBase
+  Passive:
+    transitions: 
+      FixStand: LT + A.on_pressed
+    mode: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    kd: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+  FixStand:
+    transitions: 
+      Passive: LT + B.on_pressed
+      Velocity: LT + X.on_pressed
+    kp: [60, 80, 80, 60, 80, 80, 60, 80, 80, 60, 80, 80]
+    kd: [5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4]
+    ts: [0, 1, 2]
+    qs: [
+      [],
+      [0.0, 1.36, -2.65, 0.0, 1.36, -2.65, 0.0, 1.36, -2.65, 0.0, 1.36, -2.65],
+      [0., 0.8, -1.5, 0., 0.8, -1.5, 0., 0.8, -1.5, 0., 0.8, -1.5],
+    ]
+  Velocity:
+    transitions: 
+      Passive: LT + B.on_pressed
+    policy_dir: /home/yxc/unitree_rl_lab/2026-02-06_10-21-26
+
+
+#  eno1
+## ./go2_ctrl -n lo

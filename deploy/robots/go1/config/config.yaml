@@ -1,0 +1,76 @@
+# ============================================================
+# Go1 Controller 配置文件
+# ============================================================
+# 运行: ./go1_ctrl
+# ============================================================
+
+FSM:
+  _: # 启用的状态机
+    Passive:
+      id: 1
+    FixStand:
+      id: 2
+    Velocity:
+      id: 3
+      type: RLBase
+
+  # ---------- Passive (阻尼模式) ----------
+  Passive:
+    transitions:
+      FixStand: LT + A.on_pressed
+    mode: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    kd: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    # 进入 Passive 时先以当前关节角低刚度支撑，再渐变为纯阻尼，避免从站立瞬间砸落。
+    release_duration: 1.5  # s
+    release_kp: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0,
+                 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]
+
+  # ---------- FixStand (站立) ----------
+  # Go1 站立姿态: Hip=0, Thigh=0.7, Calf=-1.4
+  FixStand:
+    transitions:
+      Passive: LT + B.on_pressed
+      Velocity: LT + X.on_pressed
+    # Go1 PD 增益 (参考 unitree_guide setRealStanceGain)
+    # Hip: Kp=100 Kd=8, Thigh: Kp=70 Kd=6, Calf: Kp=130 Kd=12
+    # kp: [100, 70, 130, 100, 70, 130, 100, 70, 130, 100, 70, 130]
+    kp: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25]
+    kd: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    # 起立过程: 0s(当前姿态) → 1s(过渡) → 2s(目标站立)
+    ts: [0, 1, 2]
+    qs: [
+      [],
+      [0.0, 1.0, -2.0, 0.0, 1.0, -2.0, 0.0, 1.0, -2.0, 0.0, 1.0, -2.0],
+      [-0.1, 0.8, -1.5, 0.1, 0.8, -1.5, -0.1, 1.0, -1.5, 0.1, 1.0, -1.5],
+    ]
+
+  # ---------- Velocity (RL 速度控制) ----------
+  Velocity:
+    transitions:
+      Passive: LT + B.on_pressed
+      FixStand: LT + X.on_pressed
+    # 策略目录: 替换为你的训练输出路径
+    policy_dir: /home/yxc/WS/2026-11-10_11-33-39
+    # 摇杆指令斜率限制，避免前进/后退指令在一个策略周期内突变
+    command_smoothing:
+      lin_accel_limit: 1.5  # m/s^2
+      ang_accel_limit: 3.0  # rad/s^2
+      reset_timeout: 0.1    # 离开 RL 超过该时间后将平滑指令清零
+    # Go1 RL 输出安全限位。
+    # 顺序必须与策略动作一致：
+    # [FR_hip, FL_hip, RR_hip, RL_hip,
+    #  FR_thigh, FL_thigh, RR_thigh, RL_thigh,
+    #  FR_calf, FL_calf, RR_calf, RL_calf]
+    safety_limits:
+      joint_pos_min: [-0.69, -0.69, -0.69, -0.69,
+                      -0.55, -0.55, -0.55, -0.55,
+                      -2.45, -2.45, -2.45, -2.45]
+      joint_pos_max: [0.69, 0.69, 0.69, 0.69,
+                      3.20, 3.20, 3.20, 3.20,
+                      -0.90, -0.90, -0.90, -0.90]
+      # 暂时关闭扭矩超限自动切 Passive；关节目标限位和倾倒保护仍启用。
+      torque_protection: false
+      # 与策略动作相同的 12 维顺序；重新开启 torque_protection 时使用。
+      torque_thresholds: [23.0, 23.0, 23.0, 23.0,
+                          23.0, 23.0, 23.0, 23.0,
+                          28.44, 28.44, 28.44, 28.44]

@@ -1,0 +1,31 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Training logs and checkpoints
+/log/
+/logs/
+/runs/
+/wandb/
+*.tfevents.*
+
+# Build artifacts
+**/build/
+cmake-build-*/
+
+# Python environments
+.venv/
+venv/
+
+# IDE and temporary files
+.vscode/
+.idea/
+.pytest_cache/
+.mypy_cache/
+
+# Sensitive files
+.env
+.env.*
+!.env.example

@@ -1,0 +1,4 @@
+# Go1 FSM - 状态机全局配置
+initial_state: damping
+control_freq: 500
+dt: 0.002

@@ -1,0 +1,3 @@
+# Go1 FSM - Damping (急停) 状态配置
+state_name: damping
+exit_transition_time: 1.5     # 退出急停后过渡时间 (s)

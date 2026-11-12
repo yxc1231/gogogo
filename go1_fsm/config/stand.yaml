@@ -1,0 +1,20 @@
+# Go1 FSM - Stand (站立) 状态配置
+# 参考: unitree_guide State_FixedStand (setRealStanceGain)
+state_name: stand
+transition_time: 2.0
+
+# 12 关节目标角度 — unitree_guide 站立姿态
+# Hip=0.0, Thigh=0.67, Calf=-1.3
+target_q: [0.0, 0.7, -1.4, 0.0, 0.7, -1.4, 0.0, 0.7, -1.4, 0.0, 0.7, -1.4]
+
+# PD 增益 — unitree_guide setRealStanceGain
+# Hip: Kp=60 Kd=5   Thigh: Kp=40 Kd=4   Calf: Kp=80 Kd=7
+Kp: [100.0, 70.0, 130.0, 100.0, 70.0, 130.0, 100.0, 70.0, 130.0, 100.0, 70.0, 130.0]
+Kd: [8.0, 6.0, 12.0, 8.0, 6.0, 12.0, 8.0, 6.0, 12.0, 8.0, 6.0, 12.0]
+tau_ff: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+use_smooth: true
+
+# ---- 安全层 ----
+torque_limit: 150.0
+torque_violation_threshold: 50

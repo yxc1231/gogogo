@@ -1,0 +1,45 @@
+# Go1 FSM - Model (RL 推理) 状态配置
+state_name: model
+
+# 模型
+model_format: pt               # pt (TorchScript) 或 onnx
+model_path: models/policy.pt   # 模型文件路径
+device: cpu                    # cpu 或 cuda
+
+# 观测/动作维度
+obs_dim: 48
+act_dim: 12
+
+# 观测顺序 (逗号分隔): gyro,gravity,cmd,q,dq,prev_act
+obs_order: "gyro,gravity,cmd,q,dq,prev_act"
+
+# 关节符号 + 顺序 (按模型的腿序):
+# ⚠️ 必须与训练时的 URDF 关节顺序一致!
+# SDK 顺序: FR(0,1,2) FL(3,4,5) RR(6,7,8) RL(9,10,11)
+# 常见模型顺序: FL, FR, RL, RR
+# 用 joint_order 做映射: SDK_idx 填在模型对应的位置上
+#
+# 例: 模型用 FL,FR,RL,RR → joint_order: [3,4,5, 0,1,2, 9,10,11, 6,7,8]
+#     模型用 SDK 一致     → joint_order: [0,1,2, 3,4,5, 6,7,8, 9,10,11]
+joint_order: [0,1,2, 3,4,5, 6,7,8, 9,10,11]
+joint_sign:  [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+# 动作缩放 — 髋/大腿/小腿 独立 (hip: 0=FR_0/FL_0/RR_0/RL_0, thigh: 1, calf: 2)
+hip_scale: 0.25
+thigh_scale: 0.25
+calf_scale: 0.25
+
+# 动作限幅 — 髋/大腿/小腿 独立
+hip_clip: 1.0
+thigh_clip: 1.0
+calf_clip: 1.0
+
+# PD 增益 (推理状态)
+Kp: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0]
+Kd: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+# 推理降采样 (500Hz / 10 = 50Hz)
+inference_decimation: 10
+
+# 默认站立姿态: target = default_pose + action * action_scale
+default_pose: [0.0, 0.67, -1.3, 0.0, 0.67, -1.3, 0.0, 0.67, -1.3, 0.0, 0.67, -1.3]

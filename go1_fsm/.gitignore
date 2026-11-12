@@ -1,0 +1,11 @@
+build/
+logs/
+*.o
+*.so
+*.a
+go1_fsm
+test_fsm
+test_stand_down
+test_read_state
+.vscode/
+.DS_Store
